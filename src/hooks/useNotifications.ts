@@ -13,26 +13,40 @@ export const useNotifications = () => {
 
   const checkPermissions = async () => {
     try {
-      console.log('🔍 Checking Firebase notification permissions...');
+      console.log('🔍 Checking notification permissions...');
       
-      // Check if browser supports notifications
-      if (!('Notification' in window)) {
-        console.log('❌ Browser does not support notifications');
-        setPermissionGranted(false);
-        return;
+      // Check Capacitor Push Notifications first (for mobile)
+      try {
+        const result = await PushNotifications.checkPermissions();
+        console.log('📱 Capacitor permission status:', result);
+        
+        if (result.receive === 'granted') {
+          console.log('✅ Capacitor permissions already granted');
+          setPermissionGranted(true);
+          return;
+        }
+      } catch (capacitorError) {
+        console.log('📱 Capacitor check failed, trying web API:', capacitorError);
       }
-
-      const permission = Notification.permission;
-      console.log('📋 Current permission status:', permission);
       
-      const granted = permission === 'granted';
-      setPermissionGranted(granted);
-      
-      if (granted) {
-        // Get FCM token if permission already granted
-        const token = await requestNotificationPermission();
-        setFcmToken(token);
+      // Fallback to web Notification API
+      if ('Notification' in window) {
+        const permission = Notification.permission;
+        console.log('📋 Web notification permission status:', permission);
+        
+        if (permission === 'granted') {
+          console.log('✅ Web notification permission granted');
+          setPermissionGranted(true);
+          
+          // Get FCM token if permission already granted
+          const token = await requestNotificationPermission();
+          setFcmToken(token);
+          return;
+        }
       }
+      
+      console.log('❌ No notification permissions found');
+      setPermissionGranted(false);
     } catch (error) {
       console.log('💥 Permission check error:', error);
       setPermissionGranted(false);
