@@ -2,6 +2,7 @@ import { TimerCard } from '@/components/TimerCard';
 import { HadeesCard } from '@/components/HadeesCard';
 import { NotificationButton } from '@/components/NotificationButton';
 import mosqueHero from '@/assets/mosque-hero.jpg';
+import mosquePrayer from '@/assets/mosque-prayer.jpg';
 
 const Index = () => {
   return (
@@ -26,12 +27,33 @@ const Index = () => {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8 space-y-8">
-        {/* Notification Controls */}
-        <div className="text-center mb-8">
-          <h2 className="text-2xl font-semibold text-primary mb-4">
-            Prayer Dashboard
-          </h2>
-          <NotificationButton />
+        {/* Notification Section with Mosque Background */}
+        <div className="relative rounded-3xl overflow-hidden shadow-prayer">
+          <div className="absolute inset-0">
+            <img 
+              src={mosquePrayer} 
+              alt="Beautiful mosque for prayer time" 
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-background/95 via-background/80 to-background/95" />
+          </div>
+          
+          <div className="relative z-10 p-8 text-center">
+            <div className="mb-6">
+              <h2 className="text-3xl font-bold text-primary mb-3">
+                🕌 Prayer Dashboard
+              </h2>
+              <div className="max-w-2xl mx-auto bg-card/90 backdrop-blur-sm rounded-2xl p-6 border border-border/50">
+                <p className="text-lg text-primary-glow font-medium mb-2 italic">
+                  "إِنَّ الصَّلَاةَ كَانَتْ عَلَى الْمُؤْمِنِينَ كِتَابًا مَوْقُوتًا"
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  "Indeed, prayer has been decreed upon the believers a decree of specified times." - Quran 4:103
+                </p>
+              </div>
+            </div>
+            <NotificationButton />
+          </div>
         </div>
 
         {/* Timer Section */}

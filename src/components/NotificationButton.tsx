@@ -86,14 +86,14 @@ export const NotificationButton = () => {
   };
 
   return (
-    <Card className="w-full max-w-md mx-auto shadow-prayer animate-fade-in">
-      <CardHeader className="text-center">
-        <CardTitle className="flex items-center justify-center gap-2 text-primary">
+    <Card className="w-full max-w-md mx-auto shadow-prayer animate-fade-in bg-card/95 backdrop-blur-sm border-primary/20">
+      <CardHeader className="text-center pb-4">
+        <CardTitle className="flex items-center justify-center gap-2 text-primary text-xl">
           {permissionGranted ? <Bell className="h-6 w-6" /> : <BellOff className="h-6 w-6" />}
-          Notification Center
+          🔔 Notification Center
         </CardTitle>
         <p className="text-sm text-muted-foreground">
-          {permissionGranted ? "Notifications enabled" : "Please enable notifications"}
+          {permissionGranted ? "✅ Notifications enabled" : "🔴 Please enable notifications"}
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -101,28 +101,34 @@ export const NotificationButton = () => {
           variant="notification" 
           onClick={handleScheduleNotification}
           disabled={isScheduling}
-          className="w-full text-lg py-6"
+          className="w-full text-lg py-6 bg-gradient-to-r from-primary to-primary-glow hover:from-primary-glow hover:to-primary"
         >
           <Bell className="h-5 w-5" />
-          {isScheduling ? "Scheduling..." : "Schedule 10min Reminder"}
+          {isScheduling ? "⏳ Scheduling..." : "⏰ Schedule 10min Reminder"}
         </Button>
         
         <Button 
           variant="golden" 
           onClick={handleInstantNotification}
-          className="w-full"
+          className="w-full py-4"
         >
           <Bell className="h-4 w-4" />
-          Send Instant Reminder
+          ⚡ Send Instant Reminder
         </Button>
         
         {!permissionGranted && (
-          <div className="text-center p-4 bg-muted/50 rounded-lg">
+          <div className="text-center p-4 bg-muted/50 rounded-lg border border-border/50">
             <p className="text-sm text-muted-foreground">
-              Tap "Schedule 10min Reminder" to enable notifications
+              🤲 Tap "Schedule 10min Reminder" to enable notifications for prayer times
             </p>
           </div>
         )}
+        
+        <div className="text-center pt-2">
+          <p className="text-xs text-muted-foreground italic">
+            "And establish prayer for My remembrance" - Quran 20:14
+          </p>
+        </div>
       </CardContent>
     </Card>
   );

@@ -26,30 +26,55 @@ export const TimerCard = () => {
   };
 
   return (
-    <Card className="w-full max-w-md mx-auto animate-fade-in shadow-prayer">
-      <CardHeader className="text-center">
-        <CardTitle className="flex items-center justify-center gap-2 text-primary">
-          <Timer className="h-6 w-6" />
-          Prayer Timer (10 Minutes)
+    <Card className="w-full max-w-md mx-auto animate-fade-in shadow-prayer bg-gradient-to-br from-card via-card to-card/95 border-primary/20">
+      <CardHeader className="text-center pb-4">
+        <CardTitle className="flex items-center justify-center gap-2 text-primary text-xl">
+          <Timer className="h-7 w-7" />
+          🕐 Prayer Countdown Timer
         </CardTitle>
+        <p className="text-sm text-muted-foreground">
+          Prepare your heart for Salah
+        </p>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="text-center">
-          <div className="text-4xl font-bold text-primary mb-2 font-mono">
-            {formattedTime}
+        {/* Timer Display */}
+        <div className="text-center space-y-4">
+          <div className="relative">
+            <div className="text-5xl font-bold text-primary mb-3 font-mono tracking-wider">
+              {formattedTime}
+            </div>
+            <div className="text-sm text-muted-foreground font-medium">
+              {isComplete ? "🕌 Time for Prayer!" : "Minutes until prayer reminder"}
+            </div>
           </div>
-          <Progress value={progress} className="w-full h-3" />
+          
+          {/* Circular Progress */}
+          <div className="relative w-32 h-32 mx-auto">
+            <div className="absolute inset-0 rounded-full border-4 border-muted"></div>
+            <div 
+              className="absolute inset-0 rounded-full border-4 border-primary transition-all duration-1000"
+              style={{
+                clipPath: `polygon(50% 50%, 50% 0%, ${50 + 50 * Math.cos((progress / 100) * 2 * Math.PI - Math.PI / 2)}% ${50 + 50 * Math.sin((progress / 100) * 2 * Math.PI - Math.PI / 2)}%, 50% 50%)`
+              }}
+            ></div>
+            <div className="absolute inset-4 rounded-full bg-card/90 flex items-center justify-center">
+              <span className="text-2xl font-bold text-primary">{Math.round(progress)}%</span>
+            </div>
+          </div>
+          
+          <Progress value={progress} className="w-full h-2" />
         </div>
         
+        {/* Controls */}
         <div className="flex flex-col gap-3">
           {!isRunning && !isComplete && (
             <Button 
               variant="prayer" 
               onClick={handleStartTimer}
-              className="w-full text-lg py-6"
+              className="w-full text-lg py-6 bg-gradient-to-r from-primary to-primary-glow hover:from-primary-glow hover:to-primary"
             >
               <Bell className="h-5 w-5" />
-              Start Prayer Reminder
+              🕌 Start Prayer Countdown
             </Button>
           )}
           
@@ -59,21 +84,26 @@ export const TimerCard = () => {
               onClick={pause}
               className="w-full text-lg py-6"
             >
-              Pause Timer
+              ⏸️ Pause Timer
             </Button>
           )}
           
           {isComplete && (
-            <div className="text-center space-y-3">
-              <div className="text-primary-glow font-medium animate-glow">
-                🕌 Time for Prayer (Salah)
+            <div className="text-center space-y-4">
+              <div className="bg-primary/10 border border-primary/20 rounded-xl p-4">
+                <div className="text-primary-glow font-bold text-xl animate-pulse mb-2">
+                  🕌 Allahu Akbar! Time for Salah
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  May your prayers be accepted
+                </p>
               </div>
               <Button 
                 variant="prayer" 
                 onClick={reset}
                 className="w-full"
               >
-                Reset Timer
+                🔄 Reset Timer
               </Button>
             </div>
           )}
@@ -82,9 +112,9 @@ export const TimerCard = () => {
             <Button 
               variant="outline" 
               onClick={reset}
-              className="w-full"
+              className="w-full border-primary/30 hover:bg-primary/5"
             >
-              Reset
+              🔄 Reset
             </Button>
           )}
         </div>
