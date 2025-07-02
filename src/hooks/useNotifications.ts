@@ -74,12 +74,12 @@ export const useNotifications = () => {
       } catch (error) {
         console.error('📱 Native notification setup error:', error);
       }
-    } else {
-      // Web platform initialization
-      console.log('🌐 Initializing web platform notifications...');
-      checkPermissions();
-      setupMessageListener();
-    }
+      } else {
+        // Web platform initialization
+        console.log('🌐 Initializing web platform notifications...');
+        await checkPermissions();
+        setupMessageListener();
+      }
   };
 
   const checkPermissions = async () => {
