@@ -10,9 +10,17 @@ export const useNotifications = () => {
   }, []);
 
   const checkPermissions = async () => {
-    if (Capacitor.isNativePlatform()) {
-      const permission = await LocalNotifications.checkPermissions();
-      setPermissionGranted(permission.display === 'granted');
+    try {
+      if (Capacitor.isNativePlatform()) {
+        const permission = await LocalNotifications.checkPermissions();
+        setPermissionGranted(permission.display === 'granted');
+      } else {
+        // For web, check browser notification permission
+        setPermissionGranted(Notification.permission === 'granted');
+      }
+    } catch (error) {
+      console.log('Permission check error:', error);
+      setPermissionGranted(false);
     }
   };
 
