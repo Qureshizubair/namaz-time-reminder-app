@@ -11,12 +11,18 @@ export const useNotifications = () => {
 
   const checkPermissions = async () => {
     try {
+      console.log('Checking permissions...');
+      console.log('Is native platform:', Capacitor.isNativePlatform());
+      
       if (Capacitor.isNativePlatform()) {
         const permission = await LocalNotifications.checkPermissions();
+        console.log('Native permission status:', permission);
         setPermissionGranted(permission.display === 'granted');
       } else {
         // For web, check browser notification permission
-        setPermissionGranted(Notification.permission === 'granted');
+        const granted = Notification.permission === 'granted';
+        console.log('Web permission status:', Notification.permission);
+        setPermissionGranted(granted);
       }
     } catch (error) {
       console.log('Permission check error:', error);
@@ -25,12 +31,28 @@ export const useNotifications = () => {
   };
 
   const requestPermissions = async () => {
-    if (Capacitor.isNativePlatform()) {
-      const permission = await LocalNotifications.requestPermissions();
-      setPermissionGranted(permission.display === 'granted');
-      return permission.display === 'granted';
+    try {
+      console.log('Requesting permissions...');
+      if (Capacitor.isNativePlatform()) {
+        const permission = await LocalNotifications.requestPermissions();
+        console.log('Permission request result:', permission);
+        const granted = permission.display === 'granted';
+        setPermissionGranted(granted);
+        return granted;
+      } else {
+        // For web
+        if ('Notification' in window && Notification.permission !== 'granted') {
+          const permission = await Notification.requestPermission();
+          const granted = permission === 'granted';
+          setPermissionGranted(granted);
+          return granted;
+        }
+        return Notification.permission === 'granted';
+      }
+    } catch (error) {
+      console.log('Permission request error:', error);
+      return false;
     }
-    return false;
   };
 
   const scheduleNotification = async (title: string, body: string, delay: number = 0) => {
