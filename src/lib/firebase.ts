@@ -42,7 +42,7 @@ export const requestNotificationPermission = async (): Promise<string | null> =>
       
       // Get FCM token
       const currentToken = await getToken(messaging, {
-        vapidKey: 'your-vapid-key-here' // You'll need to generate this
+        vapidKey: 'BPueU-_JfSrz5qTQjFBHSRvo1FHjMI9mVBxNLoQ_YtoxEBn-NTW2eryAEckniFPsHnOG3FnDbDIQIl4QgbeH1lo'
       });
       
       if (currentToken) {
