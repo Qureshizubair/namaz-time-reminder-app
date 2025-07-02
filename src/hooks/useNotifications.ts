@@ -9,52 +9,75 @@ export const useNotifications = () => {
   const [fcmToken, setFcmToken] = useState<string | null>(null);
 
   useEffect(() => {
-    checkPermissions();
-    setupMessageListener();
-    if (Capacitor.isNativePlatform()) {
-      // Initialize PushNotifications for FCM on Android
-      PushNotifications.requestPermissions().then(result => {
-        if (result.receive === 'granted') {
-          PushNotifications.register();
-        }
-      });
-      PushNotifications.addListener('registration', (token) => {
-        setFcmToken(token.value);
-        setPermissionGranted(true);
-        console.log('FCM Token:', token.value);
-        alert('Push notification registration successful!');
-      });
-      PushNotifications.addListener('registrationError', (error) => {
-        setPermissionGranted(false);
-        setFcmToken(null);
-        console.error('FCM registration error:', error);
-        alert('Push notification registration failed: ' + String(error));
-      });
-      PushNotifications.addListener('pushNotificationReceived', (notification) => {
-        // Optionally show a local notification or alert
-        LocalNotifications.schedule({
-          notifications: [
-            {
-              title: notification.title || 'Notification',
-              body: notification.body || '',
-              id: Date.now(),
-              schedule: { at: new Date() },
-              sound: null,
-              attachments: null,
-              actionTypeId: '',
-              extra: null
-            }
-          ]
-        });
-      });
-      PushNotifications.addListener('pushNotificationActionPerformed', (notification) => {
-        console.log('Push notification action performed:', notification);
-      });
-    } else {
-      // On web, request notification permissions on first load
-      requestPermissions();
-    }
+    initializeNotifications();
   }, []);
+
+  const initializeNotifications = async () => {
+    if (Capacitor.isNativePlatform()) {
+      console.log('📱 Initializing native platform notifications...');
+      try {
+        // Request local notifications permission first
+        const localPermResult = await LocalNotifications.requestPermissions();
+        console.log('📱 Local notifications permission:', localPermResult);
+        
+        if (localPermResult.display === 'granted') {
+          setPermissionGranted(true);
+          console.log('✅ Local notifications enabled');
+        }
+
+        // Also request push notifications for FCM
+        const pushPermResult = await PushNotifications.requestPermissions();
+        console.log('📱 Push notifications permission:', pushPermResult);
+        
+        if (pushPermResult.receive === 'granted') {
+          // Register for push notifications
+          await PushNotifications.register();
+          console.log('📱 Push notifications registered');
+        }
+
+        // Set up push notification listeners
+        PushNotifications.addListener('registration', (token) => {
+          setFcmToken(token.value);
+          console.log('📱 FCM Token received:', token.value);
+        });
+
+        PushNotifications.addListener('registrationError', (error) => {
+          console.error('📱 FCM registration error:', String(error));
+        });
+
+        PushNotifications.addListener('pushNotificationReceived', (notification) => {
+          console.log('📱 Push notification received:', notification);
+          // Show local notification when push is received
+          LocalNotifications.schedule({
+            notifications: [
+              {
+                title: notification.title || 'Notification',
+                body: notification.body || '',
+                id: Date.now(),
+                schedule: { at: new Date() },
+                sound: null,
+                attachments: null,
+                actionTypeId: '',
+                extra: null
+              }
+            ]
+          });
+        });
+
+        PushNotifications.addListener('pushNotificationActionPerformed', (notification) => {
+          console.log('📱 Push notification action performed:', notification);
+        });
+
+      } catch (error) {
+        console.error('📱 Native notification setup error:', error);
+      }
+    } else {
+      // Web platform initialization
+      console.log('🌐 Initializing web platform notifications...');
+      checkPermissions();
+      setupMessageListener();
+    }
+  };
 
   const checkPermissions = async () => {
     try {
@@ -151,24 +174,78 @@ export const useNotifications = () => {
             }
           ]
         });
+        console.log('📱 Local notification scheduled for native platform');
       } else {
-        // Web notification
-        if (delay === 0) {
-          new Notification(title, {
-            body,
-            icon: '/favicon.ico',
-            tag: 'namaz-reminder'
-          });
-          return;
-        }
+        // Web notification - use service worker for mobile compatibility
+        if ('serviceWorker' in navigator && 'Notification' in window) {
+          try {
+            const registration = await navigator.serviceWorker.ready;
+            
+            if (delay === 0) {
+              // For immediate notifications, try service worker first, fallback to direct
+              if (registration && registration.showNotification) {
+                await registration.showNotification(title, {
+                  body,
+                  icon: '/favicon.ico',
+                  tag: 'namaz-reminder',
+                  requireInteraction: true,
+                  badge: '/favicon.ico'
+                });
+                console.log('🔔 Service worker notification sent');
+              } else {
+                // Fallback for desktop browsers
+                new Notification(title, {
+                  body,
+                  icon: '/favicon.ico',
+                  tag: 'namaz-reminder'
+                });
+                console.log('🔔 Direct notification sent');
+              }
+              return;
+            }
 
-        setTimeout(() => {
-          new Notification(title, {
-            body,
-            icon: '/favicon.ico',
-            tag: 'namaz-reminder'
-          });
-        }, delay);
+            // For delayed notifications
+            setTimeout(async () => {
+              if (registration && registration.showNotification) {
+                await registration.showNotification(title, {
+                  body,
+                  icon: '/favicon.ico',
+                  tag: 'namaz-reminder',
+                  requireInteraction: true,
+                  badge: '/favicon.ico'
+                });
+                console.log('🔔 Delayed service worker notification sent');
+              } else {
+                new Notification(title, {
+                  body,
+                  icon: '/favicon.ico',
+                  tag: 'namaz-reminder'
+                });
+                console.log('🔔 Delayed direct notification sent');
+              }
+            }, delay);
+          } catch (swError) {
+            console.log('Service worker notification failed, trying direct:', swError);
+            // Fallback to direct notification
+            if (delay === 0) {
+              new Notification(title, {
+                body,
+                icon: '/favicon.ico',
+                tag: 'namaz-reminder'
+              });
+            } else {
+              setTimeout(() => {
+                new Notification(title, {
+                  body,
+                  icon: '/favicon.ico',
+                  tag: 'namaz-reminder'
+                });
+              }, delay);
+            }
+          }
+        } else {
+          throw new Error('Notifications not supported in this browser');
+        }
       }
     } catch (error) {
       console.error('Error scheduling notification:', error);
