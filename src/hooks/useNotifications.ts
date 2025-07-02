@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { requestNotificationPermission, onMessageListener } from '@/lib/firebase';
+import { PushNotifications } from '@capacitor/push-notifications';
 
 export const useNotifications = () => {
   const [permissionGranted, setPermissionGranted] = useState(false);
@@ -40,8 +41,28 @@ export const useNotifications = () => {
 
   const requestPermissions = async () => {
     try {
-      console.log('🔔 Requesting Firebase permissions...');
+      console.log('🔔 Requesting permissions...');
       
+      // Try Capacitor Push Notifications first (for mobile)
+      try {
+        const result = await PushNotifications.requestPermissions();
+        console.log('📱 Capacitor permission result:', result);
+        
+        if (result.receive === 'granted') {
+          console.log('✅ Capacitor permission granted');
+          setPermissionGranted(true);
+          
+          // Register for push notifications
+          await PushNotifications.register();
+          console.log('📱 Registered for push notifications');
+          
+          return true;
+        }
+      } catch (capacitorError) {
+        console.log('📱 Capacitor not available, trying Firebase:', capacitorError);
+      }
+      
+      // Fallback to Firebase for web
       const token = await requestNotificationPermission();
       const granted = token !== null;
       
