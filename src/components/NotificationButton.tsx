@@ -39,10 +39,10 @@ export const NotificationButton = () => {
         description: "You will be notified in 10 minutes for prayer time.",
         variant: "default"
       });
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Error",
-        description: "Failed to schedule notification. Please try again.",
+        description: error?.message || "Failed to schedule notification. Please try again.",
         variant: "destructive"
       });
     } finally {
@@ -76,10 +76,10 @@ export const NotificationButton = () => {
         description: "May Allah accept your prayers.",
         variant: "default"
       });
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Error",
-        description: "Failed to send notification. Please try again.",
+        description: error?.message || "Failed to send notification. Please try again.",
         variant: "destructive"
       });
     }
