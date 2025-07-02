@@ -2,12 +2,13 @@ import { initializeApp } from 'firebase/app';
 import { getMessaging, getToken, onMessage } from 'firebase/messaging';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBvOyeRxIloglwoe_YcjVcndd7Z7HIU",
+  apiKey: "AIzaSyBn5jlCRzd0h2F3t56Z249ZvJyBBRKLlxM",
   authDomain: "namaz-reminder-app.firebaseapp.com",
   projectId: "namaz-reminder-app",
-  storageBucket: "namaz-reminder-app.firebaseapp.com",
-  messagingSenderId: "123456789012",
-  appId: "1:123456789012:web:abcdef123456789012"
+  storageBucket: "namaz-reminder-app.firebasestorage.app",
+  messagingSenderId: "700860879919",
+  appId: "1:700860879919:web:ae46c299df590d5a2ae2da",
+  measurementId: "G-4LND1M5YF3"
 };
 
 // Initialize Firebase
