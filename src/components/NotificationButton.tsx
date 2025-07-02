@@ -12,11 +12,15 @@ export const NotificationButton = () => {
 
   const handleScheduleNotification = async () => {
     setIsScheduling(true);
+    console.log('🔔 Schedule button clicked, permission status:', permissionGranted);
     
     try {
       if (!permissionGranted) {
+        console.log('❌ No permission, requesting...');
         const granted = await requestPermissions();
+        console.log('📋 Permission request result:', granted);
         if (!granted) {
+          console.log('❌ Permission denied');
           toast({
             title: "Permission Required",
             description: "Please allow notifications to receive prayer reminders.",
@@ -27,6 +31,7 @@ export const NotificationButton = () => {
         }
       }
 
+      console.log('✅ Scheduling notification for 10 minutes...');
       await scheduleNamazReminder(10); // 10 minutes from now
       
       toast({
@@ -46,10 +51,14 @@ export const NotificationButton = () => {
   };
 
   const handleInstantNotification = async () => {
+    console.log('⚡ Instant notification button clicked, permission status:', permissionGranted);
     try {
       if (!permissionGranted) {
+        console.log('❌ No permission, requesting...');
         const granted = await requestPermissions();
+        console.log('📋 Permission request result:', granted);
         if (!granted) {
+          console.log('❌ Permission denied');
           toast({
             title: "Permission Required",
             description: "Please allow notifications to receive prayer reminders.",
@@ -59,6 +68,7 @@ export const NotificationButton = () => {
         }
       }
 
+      console.log('⚡ Sending instant notification...');
       await scheduleNamazReminder(0); // Immediate notification
       
       toast({
