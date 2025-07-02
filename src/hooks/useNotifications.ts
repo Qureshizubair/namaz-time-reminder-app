@@ -13,6 +13,9 @@ export const useNotifications = () => {
   }, []);
 
   const initializeNotifications = async () => {
+    console.log('Capacitor platform:', Capacitor.getPlatform());
+    console.log('Is native platform:', Capacitor.isNativePlatform());
+    
     if (Capacitor.isNativePlatform()) {
       console.log('📱 Initializing native platform notifications...');
       try {
