@@ -1,7 +1,7 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'app.lovable.819966c993924353a7abf9fe3af7a2b4',
+  appId: 'com.lovable.namazreminder',
   appName: 'Namaz Time Reminder',
   webDir: 'dist',
   server: {
