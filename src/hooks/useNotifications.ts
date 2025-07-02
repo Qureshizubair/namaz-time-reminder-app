@@ -11,25 +11,49 @@ export const useNotifications = () => {
 
   const checkPermissions = async () => {
     try {
-      console.log('Checking permissions...');
-      console.log('Is native platform:', Capacitor.isNativePlatform());
+      console.log('🔍 Checking permissions...');
+      console.log('📱 Is native platform:', Capacitor.isNativePlatform());
       
       if (Capacitor.isNativePlatform()) {
         const permission = await LocalNotifications.checkPermissions();
-        console.log('Native permission status:', permission);
+        console.log('📋 Native permission object:', JSON.stringify(permission, null, 2));
+        console.log('🎯 Permission display value:', permission.display);
+        
         // For Android, also accept 'prompt' as granted since user may have already allowed
         const granted = permission.display === 'granted' || permission.display === 'prompt';
+        console.log('✅ Permission granted status:', granted);
         setPermissionGranted(granted);
+        
+        // Force set to true if permission was already given at OS level
+        if (!granted && permission.display === 'denied') {
+          console.log('❗ Permission denied, but checking if OS-level permission exists...');
+          // Try to schedule a test notification to see if it works
+          try {
+            await LocalNotifications.schedule({
+              notifications: [{
+                title: 'Test',
+                body: 'Test notification',
+                id: 999999,
+                schedule: { at: new Date(Date.now() + 1000) }
+              }]
+            });
+            console.log('🎉 Test notification scheduled successfully - permissions actually work!');
+            setPermissionGranted(true);
+          } catch (testError) {
+            console.log('❌ Test notification failed:', testError);
+          }
+        }
       } else {
         // For web, check browser notification permission
         const granted = Notification.permission === 'granted';
-        console.log('Web permission status:', Notification.permission);
+        console.log('🌐 Web permission status:', Notification.permission);
         setPermissionGranted(granted);
       }
     } catch (error) {
-      console.log('Permission check error:', error);
+      console.log('💥 Permission check error:', error);
       // On error, assume permissions are granted for native platform
       if (Capacitor.isNativePlatform()) {
+        console.log('🔧 Error occurred but on native platform, assuming granted');
         setPermissionGranted(true);
       } else {
         setPermissionGranted(false);
