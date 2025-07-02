@@ -85,9 +85,16 @@ export const useNotifications = () => {
   const checkPermissions = async () => {
     try {
       if (Capacitor.isNativePlatform()) {
-        // Check local notifications permission for mobile
-        const { display } = await LocalNotifications.checkPermissions();
-        setPermissionGranted(display === 'granted');
+        console.log('📱 Checking native permissions...');
+        // Check both local and push notifications permission for mobile
+        const localPerm = await LocalNotifications.checkPermissions();
+        const pushPerm = await PushNotifications.checkPermissions();
+        console.log('📱 Local notifications permission:', localPerm);
+        console.log('📱 Push notifications permission:', pushPerm);
+        
+        const granted = localPerm.display === 'granted' && pushPerm.receive === 'granted';
+        setPermissionGranted(granted);
+        console.log('📱 Overall permission granted:', granted);
       } else {
         // Check web notifications
         console.log('🔍 Checking Firebase notification permissions...');
